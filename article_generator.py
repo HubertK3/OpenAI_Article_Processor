@@ -3,8 +3,11 @@ import openai
 # Ustaw swój klucz API OpenAI
 openai.api_key = 'YOUR_OPENAI_API_KEY'
 
-# Ścieżka do pliku z artykułem
+# Ścieżki do plików
 plik_artykulu = 'artykul.txt'
+plik_szablonu = 'szablon.html'
+plik_artykul_html = 'artykul.html'
+plik_wynikowy = 'podglad.html'
 
 # Funkcja do odczytu pliku z artykułem
 def odczytaj_plik(plik):
@@ -52,12 +55,32 @@ def zapisz_do_pliku(nazwa_pliku, tresc):
     except IOError as e:
         print(f"Nie udało się zapisać pliku: {e}")
 
+# Funkcja do zapisania wygenerowanego artykułu do pliku HTML używając szablonu
+def zapisz_do_pliku_szablon(nazwa_pliku, tresc, szablon):
+    try:
+        with open(szablon, 'r', encoding='utf-8') as f:
+            szablon_tresc = f.read()
+
+        # Zamień placeholder na treść artykułu
+        wynikowa_tresc = szablon_tresc.replace('{{CONTENT}}', tresc)
+
+        # Zapisz do pliku wynikowego
+        with open(nazwa_pliku, 'w', encoding='utf-8') as f:
+            f.write(wynikowa_tresc)
+            print(f"Artykuł został zapisany w pliku {nazwa_pliku}")
+    except IOError as e:
+        print(f"Nie udało się zapisać pliku: {e}")
+
 # Główna funkcja programu
 def main():
     tresc_artykulu = odczytaj_plik(plik_artykulu)
     przetworzona_tresc = przetworz_artykul_z_AI(tresc_artykulu)
     if przetworzona_tresc:
-        zapisz_do_pliku('artykul.html', przetworzona_tresc)
+        # Zapisz przetworzony artykuł bez użycia szablonu do pliku artykul.html
+        zapisz_do_pliku(plik_artykul_html, przetworzona_tresc)
+        # Zapisz przetworzony artykuł używając szablonu do pliku podglad.html
+        zapisz_do_pliku_szablon(plik_wynikowy, przetworzona_tresc, plik_szablonu)
 
 if __name__ == "__main__":
     main()
+
